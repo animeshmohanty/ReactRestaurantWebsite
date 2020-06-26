@@ -1,7 +1,9 @@
 import React from 'react';
 import { Breadcrumb, BreadcrumbItem, Card, CardBody, CardHeader, Media } from 'reactstrap';
 import { Link } from 'react-router-dom';
-
+import { Loading } from './LoadingComponent';
+import { baseUrl } from '../shared/baseUrl';
+import { Fade, Stagger } from 'react-animation-components';
 
 
     function RenderLeader( {leader} ) {
@@ -9,7 +11,7 @@ import { Link } from 'react-router-dom';
             <div className="col-12 mt-5" key={leader.id}>
                 <Media tag="li">
                     <Media left middle>
-                        <Media object src={leader.image} alt={leader.name} />
+                        <Media object src={baseUrl + leader.image} alt={leader.name} />
                     </Media>
                     <Media body className="col-12">
                         <Media heading>{leader.name}</Media>
@@ -21,13 +23,41 @@ import { Link } from 'react-router-dom';
         );
     }
 
-    function About(props) {
-    const leaders = props.leaders.map((leader) => {
-        return (
-            <RenderLeader leader={leader} />
-        );
-    });
+    function RenderListWithAnimations(props) {
 
+        const leaders = props.leaders.leaders.map((leader) => {
+            return (
+                <Fade in key={leader.id}>
+                    <div className="col-12 mt-2">
+                            <RenderLeader leader={leader} />
+                    </div>
+                </Fade>
+            );
+        });
+    
+        if (props.leaders.isLoading) {
+            return(
+                    <Loading />
+            );
+        }
+        else if (props.leaders.errMess) {
+            return(
+                <div className="col-12"> 
+                    <h4>{props.leaders.errMess}</h4>
+                </div>
+            );
+        }
+        else {
+            return (
+                <Media list>
+                    <Stagger in>
+                        {leaders}
+                    </Stagger>
+                </Media>
+            );
+        }
+    }
+    function About(props) {
     return(
         <div className="container">
             <div className="row">
@@ -82,11 +112,7 @@ import { Link } from 'react-router-dom';
                 <div className="col-12">
                     <h2>Corporate Leadership</h2>
                 </div>
-                <div className="col-12">
-                    <Media list>
-                        {leaders}
-                    </Media>
-                </div>
+                <RenderListWithAnimations leaders={props.leaders} />
             </div>
         </div>
     );
